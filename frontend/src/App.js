@@ -49,51 +49,68 @@ function App() {
 }
   };
 
+  // Função para download do arquivo .xlsx
+  const handleDownload = () => {
+    // Supondo que o backend tenha uma rota /download/xlsx
+    window.open('http://localhost:5000/download/xlsx', '_blank');
+  };
+
   return (
     <div style={{ padding: 20 }}>
       {!token && (
-  <>
-    <h2>Login</h2>
-    <input
-      type="text"
-      placeholder="Email"
-      value={email}
-      onChange={e => setEmail(e.target.value)}
-    /><br />
-    <input
-      type="password"
-      placeholder="Senha"
-      value={senha}
-      onChange={e => setSenha(e.target.value)}
-    /><br />
-    <button onClick={fazerLogin}>Entrar</button>
-  </>
-)}
+        <>
+          <h2>Login</h2>
+          <input
+            type="text"
+            placeholder="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+          /><br />
+          <input
+            type="password"
+            placeholder="Senha"
+            value={senha}
+            onChange={e => setSenha(e.target.value)}
+          /><br />
+          <button onClick={fazerLogin}>Entrar</button>
+        </>
+      )}
 
-  {token && (
-      <>
-        <h3>{mensagem}</h3>
-        <p>Perfil: {perfil}</p>
+      {token && (
+        <>
+          <h3>{mensagem}</h3>
+          <p>Perfil: {perfil}</p>
 
-        {perfil === 'diretor' && <PainelDiretor />}
-        {perfil === 'gestor' && <PainelGestor />}
-        {perfil === 'diretor' && <CadastroOrcamento />}
+          {/* Botão de download disponível para todos os perfis */}
+          <button onClick={handleDownload}>Download .xlsx</button>
+          <br /><br />
 
+          {/* Painel de visualização para todos os perfis */}
+          {perfil === 'diretor' && <PainelDiretor />}
+          {(perfil === 'gestor' || perfil === 'coordenador' || perfil === 'supervisor') && <PainelGestor />}
 
-        <button onClick={acessarPainel}>Testar Acesso Protegido</button>
-        <br /><br />
-        <button onClick={() => {
-          setToken('');
-          setPerfil('');
-          setMensagem('');
-          setEmail('');
-          setSenha('');
-        }}>
-          Sair
-        </button>
-      </>
-    )}
-  </div>
-);
+          {/* CadastroOrcamento só para diretor */}
+          {perfil === 'diretor' && <CadastroOrcamento />}
+
+          {/* Mensagem para outros perfis */}
+          {(perfil === 'gestor' || perfil === 'coordenador' || perfil === 'supervisor') && (
+            <p>Você pode consultar e solicitar disponibilidade de vagas.</p>
+          )}
+
+          <button onClick={acessarPainel}>Testar Acesso Protegido</button>
+          <br /><br />
+          <button onClick={() => {
+            setToken('');
+            setPerfil('');
+            setMensagem('');
+            setEmail('');
+            setSenha('');
+          }}>
+            Sair
+          </button>
+        </>
+      )}
+    </div>
+  );
 }
 export default App;
