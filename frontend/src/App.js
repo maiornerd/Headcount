@@ -16,12 +16,22 @@ function App() {
   const fazerLogin = async () => {
     try {
       const resposta = await axios.post('http://localhost:5000/login', {
-  usuario: email, // <-- aqui está o conserto
-  senha
-});
+        email: email,
+        senha: senha
+      });
       setMensagem(`Bem-vindo, ${resposta.data.nome}`);
+      // Aqui você pode setar o token e perfil se o backend retornar
+      if (resposta.data.token) setToken(resposta.data.token);
+      if (resposta.data.perfil) setPerfil(resposta.data.perfil);
     } catch (err) {
-      setMensagem('Login falhou');
+      // Mostra mensagem detalhada do backend, se houver
+      if (err.response && err.response.data && err.response.data.mensagem) {
+        setMensagem('Login falhou: ' + err.response.data.mensagem);
+      } else {
+        setMensagem('Login falhou');
+      }
+      // Para debug, mostra o erro no console
+      console.error('Erro no login:', err.response?.data || err.message);
     }
   };
 

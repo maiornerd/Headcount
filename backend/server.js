@@ -30,22 +30,27 @@ const usuarios = [
 // Rota de login
 app.post('/login', async (req, res) => {
   const { email, senha } = req.body;
-  console.log("Requisição recebida:", usuarios, senha); // <--- AQUI
-
   const client = await pool.connect();
   try {
     const result = await client.query(
-  'SELECT id, nome, perfil FROM usuarios WHERE email = $1 AND senha = $2',
-  [email, senha]
-);
+      'SELECT id, nome, perfil FROM usuarios WHERE email = $1 AND senha = $2',
+      [email, senha]
+    );
     if (result.rows.length > 0) {
-      res.status(200).json({ message: 'Login bem-sucedido' });
+      const usuario = result.rows[0];
+      // Gera o token JWT
+      const token = jwt.sign({ id: usuario.id, perfil: usuario.perfil }, SECRET_KEY, { expiresIn: '1h' });
+      res.status(200).json({
+        nome: usuario.nome,
+        perfil: usuario.perfil,
+        token: token
+      });
     } else {
-      res.status(401).json({ message: 'Usuário ou senha inválidos' });
+      res.status(401).json({ mensagem: 'Usuário ou senha inválidos' });
     }
   } catch (error) {
     console.error('Erro ao verificar login:', error);
-    res.status(500).json({ message: 'Erro no servidor' });
+    res.status(500).json({ mensagem: 'Erro no servidor' });
   } finally {
     client.release();
   }
